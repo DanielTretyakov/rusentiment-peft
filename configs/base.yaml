@@ -1,0 +1,28 @@
+# Base configuration shared across all experiments
+model:
+  name: "DeepPavlov/rubert-base-cased"   # swap to "cointegrated/rubert-tiny2" for quick runs
+  num_labels: 3                           # positive / negative / neutral
+  max_length: 128
+
+data:
+  train_path: "data/processed/train.csv"
+  val_path: "data/processed/val.csv"
+  test_path: "data/processed/test.csv"
+  text_column: "text"
+  label_column: "label"
+
+training:
+  output_dir: "experiments/base"
+  num_epochs: 5
+  batch_size: 16
+  learning_rate: 2e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  seed: 42
+  fp16: true                              # use mixed precision on GPU
+
+logging:
+  wandb_project: "rusentiment-peft"
+  log_steps: 50
+  eval_steps: 200
+  save_steps: 200

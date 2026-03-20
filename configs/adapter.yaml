@@ -1,0 +1,15 @@
+# Adapter Tuning — small bottleneck layers inserted into transformer blocks
+defaults:
+  - base
+
+method: "adapter"
+
+training:
+  output_dir: "experiments/adapter"
+  learning_rate: 1e-4
+
+peft:
+  # AdaLoRA is used as a proxy for classic Adapter Tuning via HF peft
+  # For true adapter layers, see AdapterHub / adapter-transformers
+  adapter_size: 64                # bottleneck hidden size
+  task_type: "SEQ_CLS"

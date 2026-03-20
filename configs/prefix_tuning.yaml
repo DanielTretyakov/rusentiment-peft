@@ -1,0 +1,13 @@
+# Prefix Tuning — prepends trainable tokens to each transformer layer
+defaults:
+  - base
+
+method: "prefix_tuning"
+
+training:
+  output_dir: "experiments/prefix_tuning"
+  learning_rate: 5e-4
+
+peft:
+  num_virtual_tokens: 20          # number of prefix tokens
+  task_type: "SEQ_CLS"

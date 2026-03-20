@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Data — do not commit raw datasets
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Experiments & model checkpoints
+experiments/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# W&B
+wandb/
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+*.DS_Store

@@ -1,0 +1,9 @@
+# Full Fine-Tuning — baseline (all parameters updated)
+defaults:
+  - base
+
+method: "full_finetune"
+
+training:
+  output_dir: "experiments/full_finetune"
+  learning_rate: 2e-5

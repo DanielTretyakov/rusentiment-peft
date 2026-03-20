@@ -1,0 +1,19 @@
+# LoRA — Low-Rank Adaptation
+defaults:
+  - base
+
+method: "lora"
+
+training:
+  output_dir: "experiments/lora"
+  learning_rate: 3e-4             # LoRA usually benefits from higher LR
+
+peft:
+  r: 16                           # rank of the low-rank matrices
+  lora_alpha: 32                  # scaling factor (alpha/r = scaling)
+  lora_dropout: 0.1
+  target_modules:                 # which layers to apply LoRA to
+    - "query"
+    - "value"
+  bias: "none"
+  task_type: "SEQ_CLS"
