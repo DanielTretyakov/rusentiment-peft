@@ -43,6 +43,7 @@ def main():
         val_path=data_cfg["val_path"],
         test_path=data_cfg["test_path"],
         max_length=config["model"].get("max_length", 128),
+        max_samples=config["data"].get("max_samples", None),
     )
 
     print(f"\nСборка модели, метод: {config.get('method', 'full_finetune')}")

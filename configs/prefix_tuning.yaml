@@ -1,13 +1,31 @@
-# Prefix Tuning — prepends trainable tokens to each transformer layer
-defaults:
-  - base
-
 method: "prefix_tuning"
+
+model:
+  name: "DeepPavlov/rubert-base-cased"
+  num_labels: 3
+  max_length: 128
+
+data:
+  train_path: "data/processed/train.csv"
+  val_path: "data/processed/val.csv"
+  test_path: "data/processed/test.csv"
+  text_column: "text"
+  label_column: "label_id"
+  max_samples: 21000
 
 training:
   output_dir: "experiments/prefix_tuning"
-  learning_rate: 5e-4
+  num_epochs: 5
+  batch_size: 16
+  learning_rate: 0.0005
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  eval_steps: 200
+  save_steps: 200
+  log_steps: 50
+  seed: 42
+  fp16: true
 
 peft:
-  num_virtual_tokens: 20          # number of prefix tokens
+  num_virtual_tokens: 20
   task_type: "SEQ_CLS"

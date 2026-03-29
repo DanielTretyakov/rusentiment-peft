@@ -1,18 +1,37 @@
-# LoRA — Low-Rank Adaptation
-defaults:
-  - base
-
 method: "lora"
+
+model:
+  name: "DeepPavlov/rubert-base-cased"
+  num_labels: 3
+  max_length: 128
+
+data:
+  train_path: "data/processed/train.csv"
+  val_path: "data/processed/val.csv"
+  test_path: "data/processed/test.csv"
+  text_column: "text"
+  label_column: "label_id"
+  max_samples: 21000
+
 
 training:
   output_dir: "experiments/lora"
-  learning_rate: 3e-4             # LoRA usually benefits from higher LR
+  num_epochs: 5
+  batch_size: 16
+  learning_rate: 0.0003
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  eval_steps: 200
+  save_steps: 200
+  log_steps: 50
+  seed: 42
+  fp16: true
 
 peft:
-  r: 16                           # rank of the low-rank matrices
-  lora_alpha: 32                  # scaling factor (alpha/r = scaling)
+  r: 16
+  lora_alpha: 32
   lora_dropout: 0.1
-  target_modules:                 # which layers to apply LoRA to
+  target_modules:
     - "query"
     - "value"
   bias: "none"

@@ -1,15 +1,31 @@
-# Adapter Tuning — small bottleneck layers inserted into transformer blocks
-defaults:
-  - base
-
 method: "adapter"
+
+model:
+  name: "DeepPavlov/rubert-base-cased"
+  num_labels: 3
+  max_length: 128
+
+data:
+  train_path: "data/processed/train.csv"
+  val_path: "data/processed/val.csv"
+  test_path: "data/processed/test.csv"
+  text_column: "text"
+  label_column: "label_id"
+  max_samples: 21000
 
 training:
   output_dir: "experiments/adapter"
-  learning_rate: 1e-4
+  num_epochs: 5
+  batch_size: 16
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  eval_steps: 200
+  save_steps: 200
+  log_steps: 50
+  seed: 42
+  fp16: true
 
 peft:
-  # AdaLoRA is used as a proxy for classic Adapter Tuning via HF peft
-  # For true adapter layers, see AdapterHub / adapter-transformers
-  adapter_size: 64                # bottleneck hidden size
+  adapter_size: 64
   task_type: "SEQ_CLS"

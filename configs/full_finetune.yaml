@@ -1,9 +1,27 @@
-# Full Fine-Tuning — baseline (all parameters updated)
-defaults:
-  - base
-
 method: "full_finetune"
+
+model:
+  name: "DeepPavlov/rubert-base-cased"
+  num_labels: 3
+  max_length: 128
+
+data:
+  train_path: "data/processed/train.csv"
+  val_path: "data/processed/val.csv"
+  test_path: "data/processed/test.csv"
+  text_column: "text"
+  label_column: "label_id"
+  max_samples: 21000
 
 training:
   output_dir: "experiments/full_finetune"
-  learning_rate: 2e-5
+  num_epochs: 5
+  batch_size: 16
+  learning_rate: 0.00002
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  eval_steps: 200
+  save_steps: 200
+  log_steps: 50
+  seed: 42
+  fp16: true

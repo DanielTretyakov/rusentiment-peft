@@ -22,31 +22,37 @@ class RuSentimentDataset(Dataset):
         # sample содержит: input_ids, attention_mask, labels
     """
 
-    def __init__(
-        self,
-        path: str,
-        tokenizer: PreTrainedTokenizerBase,
-        max_length: int = 128,
-    ):
+    def __init__(self, path, tokenizer, max_length=128, max_samples=None):
         """
         Аргументы:
-            path:       путь к CSV-файлу (колонки: text, label_id)
-            tokenizer:  токенизатор HuggingFace
-            max_length: максимальная длина токенизированной последовательности
+            path:        путь к CSV-файлу (колонки: text, label_id)
+            tokenizer:   токенизатор HuggingFace
+            max_length:  максимальная длина токенизированной последовательности
+            max_samples: если задано, берём только первые N примеров (для быстрых экспериментов)
         """
         self.tokenizer  = tokenizer
         self.max_length = max_length
 
         df = pd.read_csv(path)
+
+        # Стратифицированная выборка — сохраняем баланс классов
+        if max_samples is not None and max_samples < len(df):
+            df = (
+                df.groupby("label_id", group_keys=False)
+                .apply(lambda x: x.sample(max_samples // 3, random_state=42))
+                .reset_index(drop=True)
+            )
+            print("Используем " + str(len(df)) + " примеров из " + path)
+        else:
+            print("Загружено " + str(len(df)) + " примеров из " + path)
+
         self.texts  = df["text"].tolist()
         self.labels = df["label_id"].tolist()
 
-        print(f"Загружено {len(self.texts)} примеров из {path}")
-
-    def __len__(self) -> int:
+    def __len__(self):
         return len(self.texts)
 
-    def __getitem__(self, idx: int) -> dict:
+    def __getitem__(self, idx):
         """
         Возвращает один токенизированный пример в виде словаря тензоров.
 
@@ -55,41 +61,38 @@ class RuSentimentDataset(Dataset):
         encoding = self.tokenizer(
             self.texts[idx],
             max_length=self.max_length,
-            padding="max_length",      # дополняем до max_length
-            truncation=True,           # обрезаем если длиннее max_length
-            return_tensors="pt",       # возвращаем PyTorch тензоры
+            padding="max_length",
+            truncation=True,
+            return_tensors="pt",
         )
 
         return {
-            # squeeze убирает лишнее измерение батча (1, seq_len) → (seq_len,)
+            # squeeze убирает лишнее измерение батча (1, seq_len) -> (seq_len,)
             "input_ids":      encoding["input_ids"].squeeze(0),
             "attention_mask": encoding["attention_mask"].squeeze(0),
             "labels":         torch.tensor(self.labels[idx], dtype=torch.long),
         }
 
 
-def build_datasets(
-    tokenizer: PreTrainedTokenizerBase,
-    train_path: str,
-    val_path: str,
-    test_path: str,
-    max_length: int = 128,
-) -> tuple[RuSentimentDataset, RuSentimentDataset, RuSentimentDataset]:
+def build_datasets(tokenizer, train_path, val_path, test_path, max_length=128, max_samples=None):
     """
     Удобная функция для создания всех трёх сплитов сразу.
+
+    Аргументы:
+        max_samples: максимум примеров на train (val и test берутся полностью)
 
     Возвращает: (train_dataset, val_dataset, test_dataset)
     """
     print("Инициализация датасетов...")
-    train_dataset = RuSentimentDataset(train_path, tokenizer, max_length)
+    train_dataset = RuSentimentDataset(train_path, tokenizer, max_length, max_samples=max_samples)
     val_dataset   = RuSentimentDataset(val_path,   tokenizer, max_length)
     test_dataset  = RuSentimentDataset(test_path,  tokenizer, max_length)
 
     print(
-        f"\nРазмеры датасетов:\n"
-        f"  train: {len(train_dataset)}\n"
-        f"  val:   {len(val_dataset)}\n"
-        f"  test:  {len(test_dataset)}\n"
+        "\nРазмеры датасетов:\n"
+        "  train: " + str(len(train_dataset)) + "\n"
+        "  val:   " + str(len(val_dataset))   + "\n"
+        "  test:  " + str(len(test_dataset))  + "\n"
     )
 
     return train_dataset, val_dataset, test_dataset
