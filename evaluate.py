@@ -36,7 +36,8 @@ def parse_args():
 def load_model(config, checkpoint_path, device):
     """
     Загружает модель из чекпоинта.
-    Для PEFT-методов сливает адаптер с базовой моделью для инференса.
+    Для LoRA и Adapter сливает с базовой моделью.
+    Для Prefix Tuning оставляет адаптер в модели.
     """
     method     = config.get("method", "full_finetune")
     model_name = config["model"]["name"]
@@ -49,18 +50,22 @@ def load_model(config, checkpoint_path, device):
     )
 
     if method == "full_finetune":
-        # Для полного файнтюнинга загружаем веса напрямую из чекпоинта
         print("Загрузка весов full_finetune из: " + checkpoint_path)
         model = AutoModelForSequenceClassification.from_pretrained(
             checkpoint_path,
             num_labels=num_labels,
         )
     else:
-        # Для PEFT-методов загружаем адаптер и сливаем веса
         print("Загрузка PEFT-адаптера из: " + checkpoint_path)
         model = PeftModel.from_pretrained(base_model, checkpoint_path)
-        print("Слияние весов адаптера с базовой моделью...")
-        model = model.merge_and_unload()
+        
+        # LoRA и Adapter поддерживают merge_and_unload
+        # Prefix Tuning не поддерживает
+        if method in ["lora", "adapter"]:
+            print("Слияние весов адаптера с базовой моделью...")
+            model = model.merge_and_unload()
+        else:
+            print(f"Адаптер {method} будет использован вместе с базовой моделью")
 
     model.to(device)
     model.eval()
