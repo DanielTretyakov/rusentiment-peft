@@ -152,4 +152,4 @@ make test
 
 ## 👤 Author
 
-**Your Name** — [GitHub](https://github.com/YOUR_USERNAME)
+**Daniel Tretyakov** — [GitHub](https://github.com/DanielTretyakov)
